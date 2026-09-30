@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar Aluno</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="#"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="#" class="ativo"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos
+        </a>
+        <div class="submenu">
+          <a href="index.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+        </div>
+      </div>
+      <a href="#"><svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+        </svg>Configurações</a>
+        <a/>
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Cadastrar Aluno</h1>
+        <p>Adicionar um novo aluno no sistema escolar.</p>
+      </div>
+      <div class="usuario">
+        <button class="sino" aria-label="Notificações"><svg viewBox="0 0 24 24">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg></button>
+        <span class="selo">Administrador</span>
+      </div>
+    </header>
+
+    <main>
+      <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+      <div class="caminho">Alunos <svg viewBox="0 0 24 24">
+          <path d="m9 6 6 6-6 6" />
+        </svg> <b>Cadastrar</b></div>
+
+      <form class="cartao" id="form" novalidate>
+        <h2>Informações Gerais</h2>
+        <div class="grade">
+          <div class="linha1">
+            <div>
+              <label for="nome">Nome completo</label>
+              <input type="text" id="nome" placeholder="Ex: João Silva de Souza" maxlength="100" autocomplete="off">
+              <div class="msg-erro" id="erro-nome"></div>
+            </div>
+            <div>
+              <label for="idade">Idade</label>
+              <input type="number" id="idade" placeholder="Ex: 16" min="5" max="100">
+              <div class="msg-erro" id="erro-idade"></div>
+            </div>
+          </div>
+
+          <div>
+            <label for="serie">Série escolar</label>
+            <select id="serie">
+              <option value="">Selecione a série...</option>
+              <option>6º ano (Fundamental)</option>
+              <option>7º ano (Fundamental)</option>
+              <option>8º ano (Fundamental)</option>
+              <option>9º ano (Fundamental)</option>
+              <option>1ª série (Ensino Médio)</option>
+              <option>2ª série (Ensino Médio)</option>
+              <option>3ª série (Ensino Médio)</option>
+            </select>
+            <div class="msg-erro" id="erro-serie"></div>
+          </div>
+
+          <fieldset>
+            <legend>Situação da matrícula</legend>
+            <div class="radios">
+              <label><input type="radio" name="situacao" value="matriculado" checked> Matriculado</label>
+              <label><input type="radio" name="situacao" value="nao_matriculado"> Não matriculado</label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="acoes">
+          <button type="button" class="btn cancelar" id="cancelar">Cancelar</button>
+          <button type="submit" class="btn salvar" id="salvar">Cadastrar Aluno</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    /* =====================================================
+       ACESSO A DADOS
+       Modo teste: guarda na memória (some ao recarregar).
+       Modo real: comente o bloco de teste e descomente o bloco real.
+       ===================================================== */
+
+    // ----- MODO TESTE -----
+    const alunosFalsos = [];
+    async function salvarAluno(aluno) {
+      await new Promise(r => setTimeout(r, 400));   // simula a demora da rede
+      alunosFalsos.push({ id: alunosFalsos.length + 1, ...aluno });
+      console.log('Alunos cadastrados (teste):', alunosFalsos);
+      return { ok: true };
+    }
+
+    // ----- MODO REAL (API em C#) -----
+    // async function salvarAluno(aluno) {
+    //   const resp = await fetch('/api/alunos', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(aluno)
+    //   });
+    //   return { ok: resp.ok, erro: resp.ok ? null : await resp.text() };
+    // }
+
+    /* ===================== TELA ===================== */
+    const $ = id => document.getElementById(id);
+    const form = $('form'), aviso = $('aviso'), botao = $('salvar');
+    let temporizador;
+
+    function mostrarAviso(texto, tipo) {
+      clearTimeout(temporizador);
+      const icone = tipo === 'ok'
+        ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>'
+        : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>';
+      aviso.className = 'aviso mostrar ' + tipo;
+      aviso.innerHTML = icone;
+      const span = document.createElement('span');
+      span.textContent = texto;            // textContent evita injeção de HTML
+      aviso.appendChild(span);
+      temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
+    }
+
+    function marcarErro(campo, erroId, texto) {
+      $(campo).classList.toggle('invalido', !!texto);
+      $(erroId).textContent = texto || '';
+      return !texto;
+    }
+
+    function validar() {
+      const nome = $('nome').value.trim();
+      const idade = Number($('idade').value);
+      const okNome = marcarErro('nome', 'erro-nome', nome.length < 3 ? 'Informe o nome completo.' : '');
+      const okIdade = marcarErro('idade', 'erro-idade',
+        (!$('idade').value || idade < 5 || idade > 100) ? 'Idade entre 5 e 100.' : '');
+      const okSerie = marcarErro('serie', 'erro-serie', !$('serie').value ? 'Escolha a série.' : '');
+      return okNome && okIdade && okSerie;
+    }
+
+    function limpar() {
+      form.reset();
+      ['nome', 'idade', 'serie'].forEach(c => marcarErro(c, 'erro-' + c, ''));
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!validar()) return;
+
+      botao.disabled = true;
+      botao.textContent = 'Salvando...';
+      try {
+        const resultado = await salvarAluno({
+          nome: $('nome').value.trim(),
+          idade: Number($('idade').value),
+          serie: $('serie').value,
+          matriculado: form.situacao.value === 'matriculado'
+        });
+        if (resultado.ok) {
+          mostrarAviso('Aluno cadastrado com sucesso!', 'ok');
+          limpar();
+        } else {
+          mostrarAviso(resultado.erro || 'Não foi possível cadastrar o aluno.', 'falha');
+        }
+      } catch {
+        mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Cadastrar Aluno';
+      }
+    });
+
+    $('cancelar').addEventListener('click', limpar);
+  </script>
+</body>
+
+</html>
