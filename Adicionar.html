@@ -4,11 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Editar Aluno</title>
-  <link rel="stylesheet" href="/css/editar.css">
+  <title>Cadastrar Aluno</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
+
   <aside>
     <div class="marca">
       <div class="logo"><svg viewBox="0 0 24 24">
@@ -21,10 +22,10 @@
           <path d="M3 10.5 12 3l9 7.5V21H3z" />
         </svg>Início</a>
       <div class="menu-alunos">
-        <a href="editar.html" class="ativo"><svg viewBox="0 0 24 24">
+        <a href="Adicionar.html" class="ativo"><svg viewBox="0 0 24 24">
             <circle cx="9" cy="8" r="4" />
             <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
-          </svg>Alunos</a>
+          </svg>Alunos
         </a>
         <div class="submenu">
           <a href="Adicionar.html">Adicionar Aluno</a>
@@ -37,14 +38,15 @@
           <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
         </svg>Configurações</a>
+        <a/>
     </nav>
   </aside>
 
   <div class="principal">
     <header>
       <div>
-        <h1>Editar Aluno</h1>
-        <p>Atualizar informações cadastrais do aluno.</p>
+        <h1>Cadastrar Aluno</h1>
+        <p>Adicionar um novo aluno no sistema escolar.</p>
       </div>
       <div class="usuario">
         <button class="sino" aria-label="Notificações"><svg viewBox="0 0 24 24">
@@ -59,20 +61,20 @@
 
       <div class="caminho">Alunos <svg viewBox="0 0 24 24">
           <path d="m9 6 6 6-6 6" />
-        </svg> <b>Editar</b></div>
+        </svg> <b>Cadastrar</b></div>
 
       <form class="cartao" id="form" novalidate>
-        <h2>Atualizar Informações</h2>
+        <h2>Informações Gerais</h2>
         <div class="grade">
           <div class="linha1">
             <div>
               <label for="nome">Nome completo</label>
-              <input type="text" id="nome" maxlength="100" autocomplete="off">
+              <input type="text" id="nome" placeholder="Ex: João Silva de Souza" maxlength="100" autocomplete="off">
               <div class="msg-erro" id="erro-nome"></div>
             </div>
             <div>
               <label for="idade">Idade</label>
-              <input type="number" id="idade" min="5" max="100">
+              <input type="number" id="idade" placeholder="Ex: 16" min="5" max="100">
               <div class="msg-erro" id="erro-idade"></div>
             </div>
           </div>
@@ -81,13 +83,13 @@
             <label for="serie">Série escolar</label>
             <select id="serie">
               <option value="">Selecione a série...</option>
-              <option>6º Ano EF</option>
-              <option>7º Ano EF</option>
-              <option>8º Ano EF</option>
-              <option>9º Ano EF</option>
-              <option>1º Ano EM</option>
-              <option>2º Ano EM</option>
-              <option>3º Ano EM</option>
+              <option>6º ano (Fundamental)</option>
+              <option>7º ano (Fundamental)</option>
+              <option>8º ano (Fundamental)</option>
+              <option>9º ano (Fundamental)</option>
+              <option>1ª série (Ensino Médio)</option>
+              <option>2ª série (Ensino Médio)</option>
+              <option>3ª série (Ensino Médio)</option>
             </select>
             <div class="msg-erro" id="erro-serie"></div>
           </div>
@@ -103,7 +105,7 @@
 
         <div class="acoes">
           <button type="button" class="btn cancelar" id="cancelar">Cancelar</button>
-          <button type="submit" class="btn salvar" id="salvar">Salvar Alterações</button>
+          <button type="submit" class="btn salvar" id="salvar">Cadastrar Aluno</button>
         </div>
       </form>
     </main>
@@ -112,36 +114,25 @@
   <script>
     /* =====================================================
        ACESSO A DADOS
-       Modo teste: dados de mentira na memória.
+       Modo teste: guarda na memória (some ao recarregar).
        Modo real: comente o bloco de teste e descomente o bloco real.
-       A página recebe o aluno pelo endereço: editar-aluno.html?id=1
        ===================================================== */
 
     // ----- MODO TESTE -----
-    const alunoFalso = { id: 1, nome: 'Maria Oliveira Santos', idade: 16, serie: '2º Ano EM', matriculado: true };
-
-    async function buscarAluno(id) {
-      await new Promise(r => setTimeout(r, 300));
-      return { ok: true, aluno: { ...alunoFalso } };
-    }
-    async function atualizarAluno(id, dados) {
-      await new Promise(r => setTimeout(r, 400));
-      Object.assign(alunoFalso, dados);
-      console.log('Aluno atualizado (teste):', alunoFalso);
+    const alunosFalsos = [];
+    async function salvarAluno(aluno) {
+      await new Promise(r => setTimeout(r, 400));   // simula a demora da rede
+      alunosFalsos.push({ id: alunosFalsos.length + 1, ...aluno });
+      console.log('Alunos cadastrados (teste):', alunosFalsos);
       return { ok: true };
     }
 
     // ----- MODO REAL (API em C#) -----
-    // async function buscarAluno(id) {
-    //   const resp = await fetch('/api/alunos/' + id);
-    //   return resp.ok ? { ok: true, aluno: await resp.json() }
-    //                  : { ok: false, erro: 'Aluno não encontrado.' };
-    // }
-    // async function atualizarAluno(id, dados) {
-    //   const resp = await fetch('/api/alunos/' + id, {
-    //     method: 'PUT',
+    // async function salvarAluno(aluno) {
+    //   const resp = await fetch('/api/alunos', {
+    //     method: 'POST',
     //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(dados)
+    //     body: JSON.stringify(aluno)
     //   });
     //   return { ok: resp.ok, erro: resp.ok ? null : await resp.text() };
     // }
@@ -149,8 +140,7 @@
     /* ===================== TELA ===================== */
     const $ = id => document.getElementById(id);
     const form = $('form'), aviso = $('aviso'), botao = $('salvar');
-    const id = new URLSearchParams(location.search).get('id') || 1;
-    let original = null, temporizador;
+    let temporizador;
 
     function mostrarAviso(texto, tipo) {
       clearTimeout(temporizador);
@@ -160,7 +150,7 @@
       aviso.className = 'aviso mostrar ' + tipo;
       aviso.innerHTML = icone;
       const span = document.createElement('span');
-      span.textContent = texto;
+      span.textContent = texto;            // textContent evita injeção de HTML
       aviso.appendChild(span);
       temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
     }
@@ -171,36 +161,20 @@
       return !texto;
     }
 
-    function preencher(a) {
-      $('nome').value = a.nome;
-      $('idade').value = a.idade;
-      $('serie').value = a.serie;
-      form.situacao.value = a.matriculado ? 'matriculado' : 'nao_matriculado';
-      ['nome', 'idade', 'serie'].forEach(c => marcarErro(c, 'erro-' + c, ''));
-    }
-
     function validar() {
+      const nome = $('nome').value.trim();
       const idade = Number($('idade').value);
-      const okNome = marcarErro('nome', 'erro-nome', $('nome').value.trim().length < 3 ? 'Informe o nome completo.' : '');
+      const okNome = marcarErro('nome', 'erro-nome', nome.length < 3 ? 'Informe o nome completo.' : '');
       const okIdade = marcarErro('idade', 'erro-idade',
         (!$('idade').value || idade < 5 || idade > 100) ? 'Idade entre 5 e 100.' : '');
       const okSerie = marcarErro('serie', 'erro-serie', !$('serie').value ? 'Escolha a série.' : '');
       return okNome && okIdade && okSerie;
     }
 
-    // Carrega o aluno ao abrir a página
-    (async () => {
-      botao.disabled = true;
-      try {
-        const r = await buscarAluno(id);
-        if (!r.ok) { mostrarAviso(r.erro, 'falha'); return; }
-        original = r.aluno;
-        preencher(original);
-        botao.disabled = false;
-      } catch {
-        mostrarAviso('Sem conexão com o servidor. Recarregue a página.', 'falha');
-      }
-    })();
+    function limpar() {
+      form.reset();
+      ['nome', 'idade', 'serie'].forEach(c => marcarErro(c, 'erro-' + c, ''));
+    }
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -208,30 +182,28 @@
 
       botao.disabled = true;
       botao.textContent = 'Salvando...';
-      const dados = {
-        nome: $('nome').value.trim(),
-        idade: Number($('idade').value),
-        serie: $('serie').value,
-        matriculado: form.situacao.value === 'matriculado'
-      };
       try {
-        const r = await atualizarAluno(id, dados);
-        if (r.ok) {
-          original = { ...original, ...dados };
-          mostrarAviso('Alterações salvas com sucesso!', 'ok');
+        const resultado = await salvarAluno({
+          nome: $('nome').value.trim(),
+          idade: Number($('idade').value),
+          serie: $('serie').value,
+          matriculado: form.situacao.value === 'matriculado'
+        });
+        if (resultado.ok) {
+          mostrarAviso('Aluno cadastrado com sucesso!', 'ok');
+          limpar();
         } else {
-          mostrarAviso(r.erro || 'Não foi possível salvar as alterações.', 'falha');
+          mostrarAviso(resultado.erro || 'Não foi possível cadastrar o aluno.', 'falha');
         }
       } catch {
         mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
       } finally {
         botao.disabled = false;
-        botao.textContent = 'Salvar Alterações';
+        botao.textContent = 'Cadastrar Aluno';
       }
     });
 
-    // Cancelar desfaz o que foi digitado e volta aos dados salvos
-    $('cancelar').addEventListener('click', () => { if (original) preencher(original); });
+    $('cancelar').addEventListener('click', limpar);
   </script>
 </body>
 

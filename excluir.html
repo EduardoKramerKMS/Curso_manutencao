@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excluir Aluno</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/consultar.css"> <!-- reaproveita tabela, busca e selos -->
+  <link rel="stylesheet" href="/css/excluir.css">
+</head>
+
+<body>
+
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="inicio.html"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="excluir.html" class="ativo"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos</a>
+        <div class="submenu">
+          <a href="Adicionar.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+          <a href="consultar.html">Consultar Aluno</a>
+        </div>
+      </div>
+      <a href="#"><svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+        </svg>Configurações</a>
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Excluir Aluno</h1>
+        <p>Remover um aluno do sistema escolar.</p>
+      </div>
+      <div class="usuario">
+        <button class="sino" aria-label="Notificações"><svg viewBox="0 0 24 24">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg></button>
+        <span class="selo">Administrador</span>
+      </div>
+    </header>
+
+    <main>
+      <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+      <div class="caminho">Alunos <svg viewBox="0 0 24 24">
+          <path d="m9 6 6 6-6 6" />
+        </svg> <b>Excluir</b></div>
+
+      <div class="barra">
+        <div class="busca">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input type="search" id="busca" placeholder="Pesquisar por nome..." aria-label="Pesquisar por nome" autocomplete="off">
+        </div>
+      </div>
+
+      <section class="cartao lista">
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Série</th>
+                <th>Situação</th>
+                <th class="col-acoes">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-alunos"></tbody>
+          </table>
+        </div>
+        <div class="rodape"><span id="info"></span></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Janela de confirmação (elemento nativo <dialog>: já bloqueia o resto da tela e fecha com Esc) -->
+  <dialog id="confirmar" aria-labelledby="confirmar-titulo">
+    <div class="alerta-icone"><svg viewBox="0 0 24 24">
+        <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+      </svg></div>
+    <h2 id="confirmar-titulo">Excluir aluno?</h2>
+    <p>Você vai excluir <span class="detalhe" id="confirmar-nome"></span>.</p>
+    <p>Esta ação não pode ser desfeita.</p>
+    <div class="dialogo-acoes">
+      <button type="button" class="btn cancelar" id="confirmar-nao">Cancelar</button>
+      <button type="button" class="btn perigo" id="confirmar-sim">Excluir</button>
+    </div>
+  </dialog>
+
+  <!-- Molde de uma linha -->
+  <template id="modelo-linha">
+    <tr>
+      <td class="nome"></td>
+      <td class="idade"></td>
+      <td class="serie"></td>
+      <td><span class="selo-situacao"></span></td>
+      <td class="col-acoes">
+        <button type="button" class="btn-excluir-linha"><svg viewBox="0 0 24 24">
+            <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+          </svg>Excluir</button>
+      </td>
+    </tr>
+  </template>
+
+  <script>
+    /* =====================================================
+       ACESSO A DADOS  (é a ÚNICA parte que muda com o banco)
+       buscarAlunos()    -> lista [{ id, nome, idade, serie, matriculado }]
+       excluirAluno(id)  -> { ok: true/false, erro: texto }
+       ===================================================== */
+
+    // ----- MODO TESTE: dados na memória (voltam ao recarregar a página) -----
+    let alunosFalsos = [
+      { id: 1, nome: 'João Pedro Silva', idade: 17, serie: '3º Ano EM', matriculado: true },
+      { id: 2, nome: 'Maria Oliveira Santos', idade: 16, serie: '2º Ano EM', matriculado: true },
+      { id: 3, nome: 'Carlos Henrique Souza', idade: 15, serie: '1º Ano EM', matriculado: false },
+      { id: 4, nome: 'Ana Beatriz Costa', idade: 14, serie: '9º Ano EF', matriculado: true },
+      { id: 5, nome: 'Lucas Rafael Almeida', idade: 16, serie: '2º Ano EM', matriculado: false },
+      { id: 6, nome: 'Juliana Mendes Pereira', idade: 17, serie: '3º Ano EM', matriculado: true },
+      { id: 7, nome: 'Gabriel Barbosa Lima', idade: 15, serie: '1º Ano EM', matriculado: true },
+      { id: 8, nome: 'Fernanda Costa Rocha', idade: 16, serie: '2º Ano EM', matriculado: false },
+      { id: 9, nome: 'Pedro Álvares Nunes', idade: 14, serie: '8º Ano EF', matriculado: true },
+      { id: 10, nome: 'Camila Ferreira Dias', idade: 15, serie: '1º Ano EM', matriculado: true }
+    ];
+    const espera = ms => new Promise(r => setTimeout(r, ms));
+
+    async function buscarAlunos() {
+      await espera(300);
+      return [...alunosFalsos];
+    }
+    async function excluirAluno(id) {
+      await espera(400);
+      alunosFalsos = alunosFalsos.filter(a => a.id !== id);
+      return { ok: true };
+    }
+
+    // ----- MODO REAL (API em C#): comente o bloco de teste e descomente este -----
+    // async function buscarAlunos() {
+    //   const resp = await fetch('/api/alunos');
+    //   if (!resp.ok) throw new Error('Falha ao buscar alunos');
+    //   return resp.json();
+    // }
+    // async function excluirAluno(id) {
+    //   const resp = await fetch('/api/alunos/' + encodeURIComponent(id), { method: 'DELETE' });
+    //   return { ok: resp.ok, erro: resp.ok ? null : await resp.text() };
+    // }
+
+    /* ===================== TELA ===================== */
+    const $ = id => document.getElementById(id);
+    const corpo = $('tabela-alunos'), aviso = $('aviso');
+    const dialogo = $('confirmar'), btnSim = $('confirmar-sim'), btnNao = $('confirmar-nao');
+    let todos = [];      // alunos vindos do banco
+    let busca = '';      // texto digitado (sem acento, minúsculo)
+    let alvo = null;     // aluno que está na janela de confirmação
+    let temporizador;
+
+    const semAcento = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+    function mostrarAviso(texto, tipo) {
+      clearTimeout(temporizador);
+      const icone = tipo === 'ok'
+        ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>'
+        : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>';
+      aviso.className = 'aviso mostrar ' + tipo;
+      aviso.innerHTML = icone;
+      const span = document.createElement('span');
+      span.textContent = texto;            // textContent evita injeção de HTML
+      aviso.appendChild(span);
+      temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
+    }
+
+    function mensagemTabela(texto) {
+      corpo.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = 'vazio';
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = texto;
+      tr.appendChild(td);
+      corpo.appendChild(tr);
+    }
+
+    function criarLinha(aluno) {
+      const linha = $('modelo-linha').content.cloneNode(true);
+      linha.querySelector('.nome').textContent = aluno.nome;
+      linha.querySelector('.idade').textContent = aluno.idade + ' anos';
+      linha.querySelector('.serie').textContent = aluno.serie;
+
+      const selo = linha.querySelector('.selo-situacao');
+      selo.textContent = aluno.matriculado ? 'Matriculado' : 'Não matriculado';
+      selo.classList.add(aluno.matriculado ? 'ok' : 'falha');
+
+      linha.querySelector('button').dataset.id = aluno.id;   // para saber qual aluno foi clicado
+      return linha;
+    }
+
+    function desenhar() {
+      const lista = todos.filter(a => semAcento(a.nome).includes(busca));
+      if (!lista.length) {
+        mensagemTabela(todos.length ? 'Nenhum aluno encontrado.' : 'Nenhum aluno cadastrado.');
+      } else {
+        corpo.innerHTML = '';
+        lista.forEach(a => corpo.appendChild(criarLinha(a)));
+      }
+      $('info').textContent = lista.length
+        ? lista.length + (lista.length === 1 ? ' aluno' : ' alunos')
+        : '';
+    }
+
+    function abrirConfirmacao(aluno) {
+      alvo = aluno;
+      $('confirmar-nome').textContent = aluno.nome;
+      dialogo.showModal();
+    }
+
+    // ----- eventos -----
+    $('busca').addEventListener('input', e => {
+      busca = semAcento(e.target.value.trim());
+      desenhar();
+    });
+
+    // um único "ouvinte" na tabela serve para todos os botões Excluir
+    corpo.addEventListener('click', e => {
+      const botao = e.target.closest('button[data-id]');
+      if (!botao) return;
+      const aluno = todos.find(a => String(a.id) === botao.dataset.id);
+      if (aluno) abrirConfirmacao(aluno);
+    });
+
+    btnNao.addEventListener('click', () => dialogo.close());
+
+    // ao fechar (botão, Esc ou depois de excluir): limpa o ?id= da barra de endereço
+    dialogo.addEventListener('close', () => {
+      alvo = null;
+      if (location.search) history.replaceState(null, '', location.pathname);
+    });
+
+    btnSim.addEventListener('click', async () => {
+      if (!alvo) return;
+      const aluno = alvo;
+      btnSim.disabled = btnNao.disabled = true;
+      btnSim.textContent = 'Excluindo...';
+      try {
+        const resultado = await excluirAluno(aluno.id);
+        dialogo.close();
+        if (resultado.ok) {
+          todos = todos.filter(a => a !== aluno);
+          desenhar();
+          mostrarAviso('Aluno "' + aluno.nome + '" excluído com sucesso!', 'ok');
+        } else {
+          mostrarAviso(resultado.erro || 'Não foi possível excluir o aluno.', 'falha');
+        }
+      } catch {
+        dialogo.close();
+        mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
+      } finally {
+        btnSim.disabled = btnNao.disabled = false;
+        btnSim.textContent = 'Excluir';
+      }
+    });
+
+    // ----- início -----
+    async function iniciar() {
+      mensagemTabela('Carregando alunos...');
+      try {
+        todos = await buscarAlunos();
+        desenhar();
+
+        // veio da lista (excluir.html?id=3)? já abre a confirmação desse aluno
+        const id = new URLSearchParams(location.search).get('id');
+        if (id !== null) {
+          const aluno = todos.find(a => String(a.id) === id);
+          if (aluno) abrirConfirmacao(aluno);
+          else mostrarAviso('Aluno não encontrado.', 'falha');
+        }
+      } catch {
+        mensagemTabela('Não foi possível carregar os alunos. Tente novamente.');
+      }
+    }
+    iniciar();
+  </script>
+</body>
+
+</html>

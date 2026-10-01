@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Início</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/inicio.css">
+</head>
+
+<body>
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="inicio.html" class="ativo"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="inicio.html"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos</a>
+        <div class="submenu">
+          <a href="Adicionar.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+          <a href="consultar.html">Consultar Aluno</a>
+        </div>
+      </div>
+      <a href="#"><svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+        </svg>Configurações</a>
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Bem-vindo, Administrador!</h1>
+        <p>Visão geral do sistema de alunos e matrículas.</p>
+      </div>
+      <div class="usuario">
+        <button class="sino" aria-label="Notificações"><svg viewBox="0 0 24 24">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg></button>
+        <span class="selo">Administrador</span>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ===== CARDS DE RESUMO =====
+           Os números ficam em elementos com id: é lá que o banco vai escrever. -->
+      <section class="resumo">
+
+        <article class="cartao card-resumo">
+          <div class="topo">
+            <span>Total de Alunos</span>
+            <span class="icone azul"><svg viewBox="0 0 24 24">
+                <circle cx="9" cy="8" r="4" />
+                <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+              </svg></span>
+          </div>
+          <div class="base">
+            <strong id="total-alunos">--</strong>
+            <small>Alunos registrados</small>
+          </div>
+        </article>
+
+        <article class="cartao card-resumo">
+          <div class="topo">
+            <span>Matriculados</span>
+            <span class="icone verde"><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m8 12 3 3 5-6" />
+              </svg></span>
+          </div>
+          <div class="base">
+            <strong id="total-matriculados">--</strong>
+            <small>Alunos registrados</small>
+          </div>
+        </article>
+
+        <article class="cartao card-resumo">
+          <div class="topo">
+            <span>Não Matriculados</span>
+            <span class="icone vermelho"><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m15 9-6 6M9 9l6 6" />
+              </svg></span>
+          </div>
+          <div class="base">
+            <strong id="total-nao-matriculados">--</strong>
+            <small>Alunos registrados</small>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ===== TABELA DE ALUNOS RECENTES ===== -->
+      <section class="cartao recentes">
+        <div class="recentes-topo">
+          <h2>Alunos Recentes</h2>
+          <a href="#" class="ver-lista">Ver lista completa</a>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Série</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-alunos">
+            <!-- Estado vazio: some quando houver alunos -->
+            <tr class="vazio">
+              <td colspan="3">Nenhum aluno cadastrado ainda.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===== MODELO DE LINHA =====
+       O navegador NÃO mostra o conteúdo de <template>.
+       Você copia esse molde uma vez para cada aluno vindo do banco. -->
+  <template id="modelo-linha">
+    <tr>
+      <td class="nome"></td>
+      <td class="serie"></td>
+      <td><span class="selo-situacao"></span></td>
+    </tr>
+  </template>
+
+  <script>
+    /* Preenche os 3 cards. Chame com os números que o banco devolver. */
+    function preencherResumo({ total, matriculados, naoMatriculados }) {
+      document.getElementById('total-alunos').textContent = total;
+      document.getElementById('total-matriculados').textContent = matriculados;
+      document.getElementById('total-nao-matriculados').textContent = naoMatriculados;
+    }
+
+    /* Preenche a tabela. Recebe uma lista de alunos:
+       [{ nome: 'João Pedro Silva', serie: '3º Ano EM', matriculado: true }, ...] */
+    function preencherAlunos(lista) {
+      const corpo = document.getElementById('tabela-alunos');
+      const modelo = document.getElementById('modelo-linha');
+      corpo.innerHTML = '';                       // limpa (inclusive o "Nenhum aluno")
+
+      if (!lista.length) {
+        corpo.innerHTML = '<tr class="vazio"><td colspan="3">Nenhum aluno cadastrado ainda.</td></tr>';
+        return;
+      }
+
+      lista.forEach(aluno => {
+        const linha = modelo.content.cloneNode(true);   // copia o molde
+        linha.querySelector('.nome').textContent = aluno.nome;
+        linha.querySelector('.serie').textContent = aluno.serie;
+
+        const selo = linha.querySelector('.selo-situacao');
+        selo.textContent = aluno.matriculado ? 'Matriculado' : 'Não matriculado';
+        selo.classList.add(aluno.matriculado ? 'ok' : 'falha');
+
+        corpo.appendChild(linha);
+      });
+    }
+
+    /* ----- Quando o banco estiver pronto, é só ligar aqui -----
+    async function carregarInicio() {
+      const resp = await fetch('/api/inicio');      // endpoint em C#
+      const dados = await resp.json();
+      preencherResumo(dados.resumo);
+      preencherAlunos(dados.recentes);
+    }
+    carregarInicio();
+    */
+  </script>
+</body>
+
+</html>

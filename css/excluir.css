@@ -1,0 +1,109 @@
+/* Estilos só da tela Excluir. Carregue DEPOIS do style.css e do alunos.css. */
+
+/* Botão "Excluir" dentro de cada linha */
+.btn-excluir-linha {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff;
+  color: #dc2626;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-excluir-linha:hover {
+  background: #fee2e2;
+}
+
+.btn-excluir-linha svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn-excluir-linha:focus-visible,
+.btn.perigo:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+/* Botão vermelho de confirmação (usa o .btn que já existe no style.css) */
+.btn.perigo {
+  background: #dc2626;
+  color: #fff;
+  border: 0;
+}
+
+.btn.perigo:hover:not(:disabled) {
+  background: #b91c1c;
+}
+.btn.perigo:disabled,
+.btn.cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Janela de confirmação */
+dialog {
+  width: min(420px, calc(100% - 32px));
+  padding: 28px;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+  color: #0f172a;
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.alerta-icone {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.alerta-icone svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+dialog h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+dialog p {
+  margin: 0 0 6px;
+  color: #475569;
+  line-height: 1.5;
+}
+dialog .detalhe {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dialogo-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
