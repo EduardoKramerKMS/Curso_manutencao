@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usuários</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/consultar.css">
+  <link rel="stylesheet" href="/css/excluir.css">
+  <script src="/js/auth.js"></script>
+</head>
+
+<body>
+
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="inicio.html"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="consultar.html"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos</a>
+        <div class="submenu">
+          <a href="adicionar.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+          <a href="consultar.html">Consultar Aluno</a>
+        </div>
+      </div>
+      <!-- o link "Usuários" é incluído pelo auth.js, só para administradores -->
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Usuários</h1>
+        <p>Acessos cadastrados no painel administrativo.</p>
+      </div>
+      <div class="usuario">
+        <span class="selo">Administrador</span>
+        <button type="button" id="sair" class="btn cancelar">Sair</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+      <div class="barra">
+        <div class="busca">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input type="search" id="busca" placeholder="Pesquisar por nome ou e-mail..." aria-label="Pesquisar usuário" autocomplete="off">
+        </div>
+
+        <div class="filtros" id="filtros">
+          <button type="button" class="ativo" data-filtro="todos">Todos</button>
+          <button type="button" data-filtro="admin">Administradores</button>
+          <button type="button" data-filtro="func">Funcionários</button>
+        </div>
+
+        <a href="usuarios.html" class="btn salvar novo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" />
+          </svg>Novo Usuário
+        </a>
+      </div>
+
+      <section class="cartao lista">
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Situação</th>
+                <th>Cadastrado em</th>
+                <th class="col-acoes">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-usuarios"></tbody>
+          </table>
+        </div>
+        <div class="rodape"><span id="info"></span></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Janela de confirmação (elemento nativo <dialog>: bloqueia o resto da tela e fecha com Esc) -->
+  <dialog id="confirmar" aria-labelledby="confirmar-titulo">
+    <div class="alerta-icone"><svg viewBox="0 0 24 24">
+        <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+      </svg></div>
+    <h2 id="confirmar-titulo">Excluir usuário?</h2>
+    <p>Você vai excluir <span class="detalhe" id="confirmar-nome"></span>.</p>
+    <p>Esta ação não pode ser desfeita.</p>
+    <div class="dialogo-acoes">
+      <button type="button" class="btn cancelar" id="confirmar-nao">Cancelar</button>
+      <button type="button" class="btn perigo" id="confirmar-sim">Excluir</button>
+    </div>
+  </dialog>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const corpo = $('tabela-usuarios'), aviso = $('aviso');
+    const dialogo = $('confirmar'), btnSim = $('confirmar-sim'), btnNao = $('confirmar-nao');
+    let todos = [], filtro = 'todos', busca = '', meuId = null, alvo = null, temporizador;
+
+    const semAcento = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+    function mostrarAviso(texto, tipo) {
+      clearTimeout(temporizador);
+      aviso.className = 'aviso mostrar ' + tipo;
+      aviso.textContent = texto;
+      temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
+    }
+
+    async function lerErro(resp) {
+      try {
+        const msg = JSON.parse(await resp.text());   // o servidor manda o texto entre aspas
+        return typeof msg === 'string' ? msg : 'Erro no servidor.';
+      } catch {
+        return 'Erro no servidor.';
+      }
+    }
+
+    /* ===== API ===== */
+    async function buscarUsuarios() {
+      const resp = await fetch('/api/usuarios');
+      if (resp.status === 403) throw new Error('403');
+      if (!resp.ok) throw new Error('erro');
+      return resp.json();
+    }
+
+    async function excluirUsuario(id) {
+      const resp = await fetch('/api/usuarios/' + encodeURIComponent(id), { method: 'DELETE' });
+      return { ok: resp.ok, erro: resp.ok ? null : await lerErro(resp) };
+    }
+
+    /* ===== TELA ===== */
+    function mensagem(texto) {
+      corpo.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = 'vazio';
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.textContent = texto;
+      tr.appendChild(td);
+      corpo.appendChild(tr);
+    }
+
+    function celula(texto, classe) {
+      const td = document.createElement('td');
+      td.textContent = texto;          // textContent evita injeção de HTML
+      if (classe) td.className = classe;
+      return td;
+    }
+
+    function desenhar() {
+      const lista = todos.filter(u => {
+        if (filtro === 'admin' && u.perfil !== 'Admin') return false;
+        if (filtro === 'func' && u.perfil === 'Admin') return false;
+        return semAcento(u.nome + ' ' + u.email).includes(busca);
+      });
+
+      if (!lista.length) {
+        mensagem('Nenhum usuário encontrado.');
+      } else {
+        corpo.innerHTML = '';
+        lista.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.append(
+            celula(u.nome, 'nome'),
+            celula(u.email),
+            celula(u.perfil === 'Admin' ? 'Administrador' : 'Funcionário')
+          );
+
+          const tdSit = document.createElement('td');
+          const selo = document.createElement('span');
+          selo.className = 'selo-situacao ' + (u.ativo ? 'ok' : 'falha');
+          selo.textContent = u.ativo ? 'Ativo' : 'Inativo';
+          tdSit.appendChild(selo);
+          tr.append(tdSit, celula(new Date(u.criadoEm).toLocaleDateString('pt-BR')));
+
+          // o botão Excluir não aparece na linha de quem está logado
+          const tdAcao = celula('', 'col-acoes');
+          if (String(u.id) !== meuId) {
+            tdAcao.innerHTML = '<button type="button" class="btn-excluir-linha"><svg viewBox="0 0 24 24">' +
+              '<path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />' +
+              '</svg>Excluir</button>';
+            tdAcao.firstChild.dataset.id = u.id;
+          }
+          tr.appendChild(tdAcao);
+
+          corpo.appendChild(tr);
+        });
+      }
+      $('info').textContent = lista.length + (lista.length === 1 ? ' usuário' : ' usuários');
+    }
+
+    /* ===== eventos ===== */
+    $('busca').addEventListener('input', e => {
+      busca = semAcento(e.target.value.trim());
+      desenhar();
+    });
+
+    $('filtros').addEventListener('click', e => {
+      const botao = e.target.closest('button[data-filtro]');
+      if (!botao) return;
+      filtro = botao.dataset.filtro;
+      document.querySelectorAll('#filtros button').forEach(b => b.classList.toggle('ativo', b === botao));
+      desenhar();
+    });
+
+    corpo.addEventListener('click', e => {
+      const botao = e.target.closest('button[data-id]');
+      if (!botao) return;
+      alvo = todos.find(u => String(u.id) === botao.dataset.id);
+      if (!alvo) return;
+      $('confirmar-nome').textContent = alvo.nome;
+      dialogo.showModal();
+    });
+
+    btnNao.addEventListener('click', () => dialogo.close());
+    dialogo.addEventListener('close', () => { alvo = null; });
+
+    btnSim.addEventListener('click', async () => {
+      if (!alvo) return;
+      const usuario = alvo;
+      btnSim.disabled = btnNao.disabled = true;
+      btnSim.textContent = 'Excluindo...';
+      try {
+        const r = await excluirUsuario(usuario.id);
+        dialogo.close();
+        if (r.ok) {
+          todos = todos.filter(u => u !== usuario);
+          desenhar();
+          mostrarAviso('Usuário "' + usuario.nome + '" excluído com sucesso!', 'ok');
+        } else {
+          mostrarAviso(r.erro || 'Não foi possível excluir o usuário.', 'falha');
+        }
+      } catch {
+        dialogo.close();
+        mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
+      } finally {
+        btnSim.disabled = btnNao.disabled = false;
+        btnSim.textContent = 'Excluir';
+      }
+    });
+
+    /* ===== início ===== */
+    (async () => {
+      mensagem('Carregando usuários...');
+      try {
+        const eu = await (await fetch('/api/eu')).json();
+        meuId = String(eu.id);
+        todos = await buscarUsuarios();
+        desenhar();
+      } catch (e) {
+        mensagem(e.message === '403'
+          ? 'Apenas administradores podem consultar usuários.'
+          : 'Não foi possível carregar os usuários. Tente novamente.');
+      }
+    })();
+  </script>
+</body>
+
+</html>

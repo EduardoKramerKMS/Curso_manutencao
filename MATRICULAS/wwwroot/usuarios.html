@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar Usuário</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/inicio.css">
+  <script src="/js/auth.js"></script>
+</head>
+
+<body>
+
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="inicio.html"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="consultar.html"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos</a>
+        <div class="submenu">
+          <a href="adicionar.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+          <a href="consultar.html">Consultar Aluno</a>
+        </div>
+      </div>
+      <!-- o link "Usuários" é incluído pelo auth.js, só para administradores -->
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Cadastrar Usuário</h1>
+        <p>Criar um acesso ao painel administrativo.</p>
+      </div>
+      <div class="usuario">
+        <span class="selo">Administrador</span>
+        <button type="button" id="sair" class="btn cancelar">Sair</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+      <div class="caminho">Usuários <svg viewBox="0 0 24 24">
+          <path d="m9 6 6 6-6 6" />
+        </svg> <b>Cadastrar</b></div>
+
+      <form class="cartao" id="form" novalidate>
+        <h2>Dados de Acesso</h2>
+        <div class="grade">
+          <div class="linha1">
+            <div>
+              <label for="nome">Nome completo</label>
+              <input type="text" id="nome" maxlength="100" autocomplete="off">
+              <div class="msg-erro" id="erro-nome"></div>
+            </div>
+            <div>
+              <label for="perfil">Perfil</label>
+              <select id="perfil">
+                <option value="Funcionario">Funcionário</option>
+                <option value="Admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="grid-column: 1 / -1">
+            <label for="email">E-mail</label>
+            <input type="text" id="email" maxlength="150" autocomplete="off">
+            <div class="msg-erro" id="erro-email"></div>
+          </div>
+
+          <div>
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" autocomplete="new-password">
+            <div class="msg-erro" id="erro-senha"></div>
+          </div>
+          <div>
+            <label for="confirma">Confirmar senha</label>
+            <input type="password" id="confirma" autocomplete="new-password">
+            <div class="msg-erro" id="erro-confirma"></div>
+          </div>
+        </div>
+
+        <div class="acoes">
+          <button type="button" class="btn cancelar" id="cancelar">Cancelar</button>
+          <button type="submit" class="btn salvar" id="salvar">Cadastrar Usuário</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const form = $('form'), aviso = $('aviso'), botao = $('salvar');
+    let temporizador;
+
+    function mostrarAviso(texto, tipo) {
+      clearTimeout(temporizador);
+      aviso.className = 'aviso mostrar ' + tipo;
+      aviso.textContent = texto;
+      temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
+    }
+
+    function erro(campo, msg) {
+      $(campo).classList.toggle('invalido', !!msg);
+      $('erro-' + campo).textContent = msg || '';
+      return !msg;
+    }
+
+    function validar() {
+      const a = erro('nome', $('nome').value.trim().length < 3 ? 'Informe o nome.' : '');
+      const b = erro('email', /^\S+@\S+\.\S+$/.test($('email').value.trim()) ? '' : 'E-mail inválido.');
+      const c = erro('senha', $('senha').value.length < 8 ? 'Mínimo de 8 caracteres.' : '');
+      const d = erro('confirma', $('confirma').value !== $('senha').value ? 'As senhas não conferem.' : '');
+      return a && b && c && d;
+    }
+
+    function limpar() {
+      form.reset();
+      ['nome', 'email', 'senha', 'confirma'].forEach(c => erro(c, ''));
+    }
+
+    async function salvarUsuario(u) {
+      const resp = await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(u)
+      });
+      let msg = null;
+      if (!resp.ok) {
+        try { msg = JSON.parse(await resp.text()); } catch { msg = 'Erro no servidor.'; }
+        if (typeof msg !== 'string') msg = 'Erro no servidor.';
+      }
+      return { ok: resp.ok, erro: msg };
+    }
+
+    // só administrador usa esta tela (o servidor também confere)
+    (async () => {
+      try {
+        const r = await fetch('/api/eu');
+        if (r.ok && (await r.json()).perfil === 'Admin') return;
+      } catch { }
+      botao.disabled = true;
+      mostrarAviso('Apenas administradores podem cadastrar usuários.', 'falha');
+    })();
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!validar()) return;
+
+      botao.disabled = true;
+      botao.textContent = 'Salvando...';
+      try {
+        const r = await salvarUsuario({
+          nome: $('nome').value.trim(),
+          email: $('email').value.trim(),
+          senha: $('senha').value,
+          perfil: $('perfil').value
+        });
+        if (r.ok) {
+          mostrarAviso('Usuário cadastrado com sucesso!', 'ok');
+          limpar();
+        } else {
+          mostrarAviso(r.erro || 'Não foi possível cadastrar o usuário.', 'falha');
+        }
+      } catch {
+        mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Cadastrar Usuário';
+      }
+    });
+
+    $('cancelar').addEventListener('click', limpar);
+  </script>
+</body>
+
+</html>

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
  
 var builder = WebApplication.CreateBuilder(args);
+var connStr = builder.Configuration.GetConnectionString("Escola");   // ← nova
  
 // Login por cookie
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -18,7 +19,30 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         o.SlidingExpiration = true;
         o.Events.OnRedirectToLogin = ctx => { ctx.Response.StatusCode = 401; return Task.CompletedTask; };
         o.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = 403; return Task.CompletedTask; };
+                o.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = 403; return Task.CompletedTask; };
+
+        // a cada acesso, confere se o usuário ainda existe, está ativo e mantém o mesmo perfil
+        o.Events.OnValidatePrincipal = async ctx =>
+        {
+            var p = ctx.HttpContext.Request.Path;
+            if (!p.StartsWithSegments("/api") && !(p.Value ?? "").EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+                return;   // CSS, JS e imagens não precisam desta conferência
+
+            int.TryParse(ctx.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid);
+            await using var con = new SqlConnection(connStr);
+            await con.OpenAsync();
+            await using var cmd = new SqlCommand("SELECT Perfil FROM Usuario WHERE Id = @id AND Ativo = 1", con);
+            cmd.Parameters.AddWithValue("@id", uid);
+            var perfilAtual = (string?)await cmd.ExecuteScalarAsync();
+
+            if (perfilAtual == null || perfilAtual != ctx.Principal?.FindFirst(ClaimTypes.Role)?.Value)
+            {
+                ctx.RejectPrincipal();
+                await ctx.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+        };
     });
+    
 builder.Services.AddAuthorization();
  
 var app = builder.Build();
@@ -171,7 +195,12 @@ app.MapPost("/api/logout", async (HttpContext ctx) =>
  
 // ===== QUEM ESTÁ LOGADO =====
 app.MapGet("/api/eu", (ClaimsPrincipal u) =>
-    Results.Ok(new { nome = u.Identity!.Name, perfil = u.FindFirst(ClaimTypes.Role)?.Value }));
+    Results.Ok(new
+    {
+        id = u.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+        nome = u.Identity!.Name,
+        perfil = u.FindFirst(ClaimTypes.Role)?.Value
+    }));
  
 // ===== CADASTRAR USUÁRIO (só administrador) =====
 app.MapPost("/api/usuarios", async (UsuarioEntrada u, ClaimsPrincipal quem) =>
@@ -316,8 +345,54 @@ app.MapGet("/api/inicio", async () =>
         new ResumoDto(total, matriculados, total - matriculados),
         recentes));
 });
- 
+// LISTAR USUÁRIOS (só administrador). Nunca devolve a senha nem o hash.
+app.MapGet("/api/usuarios", async (ClaimsPrincipal quem) =>
+{
+    if (!quem.IsInRole("Admin"))
+        return Results.Json("Apenas administradores podem consultar usuários.", statusCode: 403);
+
+    var lista = new List<UsuarioDto>();
+    await using var con = await Abrir();
+    await using var cmd = new SqlCommand(
+        "SELECT Id, Nome, Email, Perfil, Ativo, CriadoEm FROM Usuario ORDER BY Nome", con);
+    await using var rd = await cmd.ExecuteReaderAsync();
+    while (await rd.ReadAsync())
+        lista.Add(new UsuarioDto(
+            rd.GetInt32(0), rd.GetString(1), rd.GetString(2), rd.GetString(3), rd.GetBoolean(4),
+            DateTime.SpecifyKind(rd.GetDateTime(5), DateTimeKind.Utc)));   // data gravada em UTC
+    return Results.Ok(lista);
+});
+
+// EXCLUIR USUÁRIO (só administrador)
+app.MapDelete("/api/usuarios/{id:int}", async (int id, ClaimsPrincipal quem) =>
+{
+    if (!quem.IsInRole("Admin"))
+        return Results.Json("Apenas administradores podem excluir usuários.", statusCode: 403);
+
+    if (quem.FindFirst(ClaimTypes.NameIdentifier)?.Value == id.ToString())
+        return Results.BadRequest("Você não pode excluir o seu próprio usuário.");
+
+    await using var con = await Abrir();
+    // não apaga o último administrador ativo
+    await using var cmd = new SqlCommand(@"
+        DELETE FROM Usuario
+        WHERE Id = @id
+          AND NOT (Perfil = 'Admin' AND Ativo = 1
+                   AND (SELECT COUNT(*) FROM Usuario WHERE Perfil = 'Admin' AND Ativo = 1) <= 1)", con);
+    cmd.Parameters.AddWithValue("@id", id);
+    if (await cmd.ExecuteNonQueryAsync() > 0) return Results.NoContent();
+
+    // nada foi apagado: o usuário não existe, ou era o último administrador
+    await using var chk = new SqlCommand("SELECT COUNT(*) FROM Usuario WHERE Id = @id", con);
+    chk.Parameters.AddWithValue("@id", id);
+    return (int)(await chk.ExecuteScalarAsync())! == 0
+        ? Results.NotFound("Usuário não encontrado.")
+        : Results.Conflict("Não é possível excluir o último administrador.");
+});
+
 app.Run();
+ 
+
  
 record AlunoDto(int Id, string Nome, int Idade, string Serie, bool Matriculado);
 record AlunoEntrada(string Nome, int Idade, string Serie, bool Matriculado);
@@ -326,4 +401,5 @@ record AlunoRecente(string Nome, string Serie, bool Matriculado);
 record InicioDto(ResumoDto Resumo, List<AlunoRecente> Recentes);
 record LoginEntrada(string Email, string Senha);
 record UsuarioEntrada(string Nome, string Email, string Senha, string Perfil);
+record UsuarioDto(int Id, string Nome, string Email, string Perfil, bool Ativo, DateTime CriadoEm);
  

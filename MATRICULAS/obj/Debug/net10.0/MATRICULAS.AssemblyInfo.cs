@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MATRICULAS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e5bd7c4d9f6fb61defdd28d8e4893023efa2c58b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ac97df579b6a06b76abd25e566291065dffc2f2")]
 [assembly: System.Reflection.AssemblyProductAttribute("MATRICULAS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MATRICULAS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

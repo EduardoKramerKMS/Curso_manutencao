@@ -53,6 +53,7 @@
             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
           </svg></button>
         <span class="selo">Administrador</span>
+        <button type="button" id="sair" class="btn cancelar">Sair</button>
       </div>
     </header>
 
@@ -111,129 +112,129 @@
     </main>
   </div>
 
- <script>
-  /* ====================== API ====================== */
-  async function lerErro(resp) {
-    try {
-      const msg = JSON.parse(await resp.text());   // o servidor manda o texto entre aspas
-      return typeof msg === 'string' ? msg : 'Erro no servidor.';
-    } catch {
-      return 'Erro no servidor.';
-    }
-  }
-
-  async function buscarAluno(id) {
-    const resp = await fetch('/api/alunos/' + encodeURIComponent(id));
-    if (resp.ok) return { ok: true, aluno: await resp.json() };
-    return { ok: false, erro: resp.status === 404 ? 'Aluno não encontrado.' : await lerErro(resp) };
-  }
-
-  async function atualizarAluno(id, dados) {
-    const resp = await fetch('/api/alunos/' + encodeURIComponent(id), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
-    });
-    return { ok: resp.ok, erro: resp.ok ? null : await lerErro(resp) };
-  }
-
-  /* ===================== TELA ===================== */
-  const $ = id => document.getElementById(id);
-  const form = $('form'), aviso = $('aviso'), botao = $('salvar');
-  const id = new URLSearchParams(location.search).get('id');
-  let original = null, temporizador;
-
-  function mostrarAviso(texto, tipo) {
-    clearTimeout(temporizador);
-    const icone = tipo === 'ok'
-      ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>'
-      : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>';
-    aviso.className = 'aviso mostrar ' + tipo;
-    aviso.innerHTML = icone;
-    const span = document.createElement('span');
-    span.textContent = texto;
-    aviso.appendChild(span);
-    temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
-  }
-
-  function marcarErro(campo, erroId, texto) {
-    $(campo).classList.toggle('invalido', !!texto);
-    $(erroId).textContent = texto || '';
-    return !texto;
-  }
-
-  function preencher(a) {
-    $('nome').value = a.nome;
-    $('idade').value = a.idade || '';
-
-    // se a série salva não estiver na lista, cria a opção (nunca fica em branco)
-    if (a.serie && ![...$('serie').options].some(o => o.value === a.serie)) {
-      $('serie').add(new Option(a.serie, a.serie));
-    }
-    $('serie').value = a.serie || '';
-
-    form.situacao.value = a.matriculado ? 'matriculado' : 'nao_matriculado';
-    ['nome', 'idade', 'serie'].forEach(c => marcarErro(c, 'erro-' + c, ''));
-  }
-
-  function validar() {
-    const idade = Number($('idade').value);
-    const okNome = marcarErro('nome', 'erro-nome', $('nome').value.trim().length < 3 ? 'Informe o nome completo.' : '');
-    const okIdade = marcarErro('idade', 'erro-idade',
-      (!$('idade').value || idade < 5 || idade > 100) ? 'Idade entre 5 e 100.' : '');
-    const okSerie = marcarErro('serie', 'erro-serie', !$('serie').value ? 'Escolha a série.' : '');
-    return okNome && okIdade && okSerie;
-  }
-
-  // Carrega o aluno ao abrir a página
-  (async () => {
-    botao.disabled = true;
-    if (!id) {
-      mostrarAviso('Nenhum aluno selecionado. Abra pela lista de alunos.', 'falha');
-      return;
-    }
-    try {
-      const r = await buscarAluno(id);
-      if (!r.ok) { mostrarAviso(r.erro, 'falha'); return; }
-      original = r.aluno;
-      preencher(original);
-      botao.disabled = false;
-    } catch {
-      mostrarAviso('Sem conexão com o servidor. Recarregue a página.', 'falha');
-    }
-  })();
-
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    if (!validar()) return;
-
-    botao.disabled = true;
-    botao.textContent = 'Salvando...';
-    const dados = {
-      nome: $('nome').value.trim(),
-      idade: Number($('idade').value),
-      serie: $('serie').value,
-      matriculado: form.situacao.value === 'matriculado'
-    };
-    try {
-      const r = await atualizarAluno(id, dados);
-      if (r.ok) {
-        original = { ...original, ...dados };
-        mostrarAviso('Alterações salvas com sucesso!', 'ok');
-      } else {
-        mostrarAviso(r.erro || 'Não foi possível salvar as alterações.', 'falha');
+  <script>
+    /* ====================== API ====================== */
+    async function lerErro(resp) {
+      try {
+        const msg = JSON.parse(await resp.text());   // o servidor manda o texto entre aspas
+        return typeof msg === 'string' ? msg : 'Erro no servidor.';
+      } catch {
+        return 'Erro no servidor.';
       }
-    } catch {
-      mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
-    } finally {
-      botao.disabled = false;
-      botao.textContent = 'Salvar Alterações';
     }
-  });
 
-  // Cancelar desfaz o que foi digitado e volta aos dados salvos
-  $('cancelar').addEventListener('click', () => { if (original) preencher(original); });
-</script>
+    async function buscarAluno(id) {
+      const resp = await fetch('/api/alunos/' + encodeURIComponent(id));
+      if (resp.ok) return { ok: true, aluno: await resp.json() };
+      return { ok: false, erro: resp.status === 404 ? 'Aluno não encontrado.' : await lerErro(resp) };
+    }
+
+    async function atualizarAluno(id, dados) {
+      const resp = await fetch('/api/alunos/' + encodeURIComponent(id), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      return { ok: resp.ok, erro: resp.ok ? null : await lerErro(resp) };
+    }
+
+    /* ===================== TELA ===================== */
+    const $ = id => document.getElementById(id);
+    const form = $('form'), aviso = $('aviso'), botao = $('salvar');
+    const id = new URLSearchParams(location.search).get('id');
+    let original = null, temporizador;
+
+    function mostrarAviso(texto, tipo) {
+      clearTimeout(temporizador);
+      const icone = tipo === 'ok'
+        ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>'
+        : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>';
+      aviso.className = 'aviso mostrar ' + tipo;
+      aviso.innerHTML = icone;
+      const span = document.createElement('span');
+      span.textContent = texto;
+      aviso.appendChild(span);
+      temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
+    }
+
+    function marcarErro(campo, erroId, texto) {
+      $(campo).classList.toggle('invalido', !!texto);
+      $(erroId).textContent = texto || '';
+      return !texto;
+    }
+
+    function preencher(a) {
+      $('nome').value = a.nome;
+      $('idade').value = a.idade || '';
+
+      // se a série salva não estiver na lista, cria a opção (nunca fica em branco)
+      if (a.serie && ![...$('serie').options].some(o => o.value === a.serie)) {
+        $('serie').add(new Option(a.serie, a.serie));
+      }
+      $('serie').value = a.serie || '';
+
+      form.situacao.value = a.matriculado ? 'matriculado' : 'nao_matriculado';
+      ['nome', 'idade', 'serie'].forEach(c => marcarErro(c, 'erro-' + c, ''));
+    }
+
+    function validar() {
+      const idade = Number($('idade').value);
+      const okNome = marcarErro('nome', 'erro-nome', $('nome').value.trim().length < 3 ? 'Informe o nome completo.' : '');
+      const okIdade = marcarErro('idade', 'erro-idade',
+        (!$('idade').value || idade < 5 || idade > 100) ? 'Idade entre 5 e 100.' : '');
+      const okSerie = marcarErro('serie', 'erro-serie', !$('serie').value ? 'Escolha a série.' : '');
+      return okNome && okIdade && okSerie;
+    }
+
+    // Carrega o aluno ao abrir a página
+    (async () => {
+      botao.disabled = true;
+      if (!id) {
+        mostrarAviso('Nenhum aluno selecionado. Abra pela lista de alunos.', 'falha');
+        return;
+      }
+      try {
+        const r = await buscarAluno(id);
+        if (!r.ok) { mostrarAviso(r.erro, 'falha'); return; }
+        original = r.aluno;
+        preencher(original);
+        botao.disabled = false;
+      } catch {
+        mostrarAviso('Sem conexão com o servidor. Recarregue a página.', 'falha');
+      }
+    })();
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!validar()) return;
+
+      botao.disabled = true;
+      botao.textContent = 'Salvando...';
+      const dados = {
+        nome: $('nome').value.trim(),
+        idade: Number($('idade').value),
+        serie: $('serie').value,
+        matriculado: form.situacao.value === 'matriculado'
+      };
+      try {
+        const r = await atualizarAluno(id, dados);
+        if (r.ok) {
+          original = { ...original, ...dados };
+          mostrarAviso('Alterações salvas com sucesso!', 'ok');
+        } else {
+          mostrarAviso(r.erro || 'Não foi possível salvar as alterações.', 'falha');
+        }
+      } catch {
+        mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Salvar Alterações';
+      }
+    });
+
+    // Cancelar desfaz o que foi digitado e volta aos dados salvos
+    $('cancelar').addEventListener('click', () => { if (original) preencher(original); });
+  </script>
 </body>
 
 </html>
