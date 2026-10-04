@@ -1,0 +1,249 @@
+/* Estilos só da tela Alunos. Carregue DEPOIS do style.css. */
+:root {
+  --azul: #2563eb;
+  --azul-claro: #eaf1ff;
+  --verde-claro: #d1fae5;
+  --verde-escuro: #065f46;
+  --vermelho: #dc2626;
+  --vermelho-claro: #fee2e2;
+  --vermelho-escuro: #991b1b;
+  --texto: #0f172a;
+  --texto-suave: #94a3b8;
+  --borda: #e5e7eb;
+  --cabecalho-tabela: #f1f3f6;
+}
+
+/* ===== Barra: busca, filtros e botão ===== */
+.barra {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.busca {
+  position: relative;
+  flex: 0 1 280px;
+}
+
+.busca svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--texto-suave);
+  stroke-width: 2;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.busca input {
+  width: 100%;
+  padding: 11px 14px 11px 42px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+}
+
+.filtros {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #eef0f3;
+  border-radius: 10px;
+}
+
+.filtros button {
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.filtros button.ativo {
+  background: #fff;
+  color: #1e3a8a;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.barra .novo {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.barra .novo svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+/* ===== Tabela ===== */
+.lista {
+  padding: 24px;
+}
+
+.tabela-rolagem {
+  overflow-x: auto;
+} /* em tela pequena a tabela rola, a página não */
+
+.lista table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.lista th {
+  background: var(--cabecalho-tabela);
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+}
+
+.lista th:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.lista th:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.lista td {
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--borda);
+  color: #475569;
+}
+
+.lista td.nome {
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.lista .col-acoes {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.lista .vazio td {
+  text-align: center;
+  color: var(--texto-suave);
+  padding: 40px 16px;
+}
+
+/* ===== Selos de situação ===== */
+.selo-situacao {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.selo-situacao.ok {
+  background: var(--verde-claro);
+  color: var(--verde-escuro);
+}
+.selo-situacao.falha {
+  background: var(--vermelho-claro);
+  color: var(--vermelho-escuro);
+}
+
+/* ===== Ícones de ação (editar / excluir) ===== */
+.acao {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 4px;
+  border-radius: 8px;
+}
+
+.acao svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.acao.editar {
+  color: var(--azul);
+}
+.acao.excluir {
+  color: var(--vermelho);
+}
+.acao.editar:hover {
+  background: var(--azul-claro);
+}
+.acao.excluir:hover {
+  background: var(--vermelho-claro);
+}
+
+/* ===== Rodapé: contagem + paginação ===== */
+.rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.paginacao {
+  display: flex;
+  gap: 6px;
+}
+
+.paginacao button {
+  min-width: 32px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.paginacao button:hover:not(:disabled):not(.ativo) {
+  background: var(--cabecalho-tabela);
+}
+.paginacao button.ativo {
+  background: var(--azul);
+  color: #fff;
+  font-weight: 600;
+}
+.paginacao button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ===== Foco visível para quem usa teclado ===== */
+.busca input:focus-visible,
+.filtros button:focus-visible,
+.paginacao button:focus-visible,
+.acao:focus-visible {
+  outline: 2px solid var(--azul);
+  outline-offset: 2px;
+}

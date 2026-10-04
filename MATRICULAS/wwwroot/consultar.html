@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alunos</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/consultar.css">
+  <script src="/js/auth.js"></script>
+</head>
+
+<body>
+
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="inicio.html"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="consultar.html" class="ativo"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos</a>
+        <div class="submenu">
+          <a href="adicionar.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+          <a href="consultar.html">Consultar Aluno</a>
+        </div>
+      </div>
+      <a href="#"><svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+        </svg>Configurações</a>
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Alunos</h1>
+        <p>Gerenciamento de alunos e turmas cadastrados.</p>
+      </div>
+      <div class="usuario">
+        <button class="sino" aria-label="Notificações"><svg viewBox="0 0 24 24">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg></button>
+        <span class="selo">Administrador</span>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ===== BARRA: busca + filtros + botão novo ===== -->
+      <div class="barra">
+        <div class="busca">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input type="search" id="busca" placeholder="Pesquisar por nome..." aria-label="Pesquisar por nome" autocomplete="off">
+        </div>
+
+        <div class="filtros" id="filtros">
+          <button type="button" class="ativo" data-filtro="todos">Todos</button>
+          <button type="button" data-filtro="matriculados">Matriculados</button>
+          <button type="button" data-filtro="nao">Não matriculados</button>
+        </div>
+
+        <a href="adicionar.html" class="btn salvar novo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" />
+          </svg>Novo Aluno
+        </a>
+      </div>
+
+      <!-- ===== TABELA ===== -->
+      <section class="cartao lista">
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Série</th>
+                <th>Situação</th>
+                <th class="col-acoes">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-alunos"></tbody>
+          </table>
+        </div>
+
+        <div class="rodape">
+          <span id="info"></span>
+          <nav class="paginacao" id="paginacao" aria-label="Paginação"></nav>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Molde de uma linha (o navegador não mostra o <template>) -->
+  <template id="modelo-linha">
+    <tr>
+      <td class="nome"></td>
+      <td class="idade"></td>
+      <td class="serie"></td>
+      <td><span class="selo-situacao"></span></td>
+      <td class="col-acoes">
+        <a class="acao editar" aria-label="Editar aluno"><svg viewBox="0 0 24 24">
+            <path d="M12 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-7" />
+            <path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8 8 16l1.2-4z" />
+          </svg></a>
+        <a class="acao excluir" aria-label="Excluir aluno"><svg viewBox="0 0 24 24">
+            <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+          </svg></a>
+      </td>
+    </tr>
+  </template>
+
+  <script>
+    /* =====================================================
+   ACESSO A DADOS (API em C#)
+   Devolve uma lista: [{ id, nome, idade, serie, matriculado }, ...]
+   ===================================================== */
+    async function buscarAlunos() {
+      const resp = await fetch('/api/alunos');
+      if (!resp.ok) throw new Error('Falha ao buscar alunos');
+      return resp.json();
+    }
+
+    /* ===================== TELA ===================== */
+    const POR_PAGINA = 8;
+    let todos = [];          // todos os alunos vindos do banco
+    let filtro = 'todos';    // 'todos' | 'matriculados' | 'nao'
+    let busca = '';          // texto digitado (já sem acento e minúsculo)
+    let pagina = 1;
+
+    const $ = id => document.getElementById(id);
+    const corpo = $('tabela-alunos');
+
+    // "João" -> "joao": a busca acha o nome mesmo sem digitar o acento
+    const semAcento = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+    function listaFiltrada() {
+      return todos.filter(a => {
+        if (filtro === 'matriculados' && !a.matriculado) return false;
+        if (filtro === 'nao' && a.matriculado) return false;
+        return semAcento(a.nome).includes(busca);
+      });
+    }
+
+    function mensagemTabela(texto) {
+      corpo.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = 'vazio';
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = texto;
+      tr.appendChild(td);
+      corpo.appendChild(tr);
+    }
+
+    function criarLinha(aluno) {
+      const linha = $('modelo-linha').content.cloneNode(true);
+      // textContent evita injeção de HTML se um nome vier com <script>
+      linha.querySelector('.nome').textContent = aluno.nome;
+      linha.querySelector('.idade').textContent = aluno.idade ? aluno.idade + ' anos' : '—';
+      linha.querySelector('.serie').textContent = aluno.serie || '—';
+
+      const selo = linha.querySelector('.selo-situacao');
+      selo.textContent = aluno.matriculado ? 'Matriculado' : 'Não matriculado';
+      selo.classList.add(aluno.matriculado ? 'ok' : 'falha');
+
+      // leva o id na URL: a página de editar/excluir lê esse id
+      linha.querySelector('.editar').href = 'editar.html?id=' + encodeURIComponent(aluno.id);
+      linha.querySelector('.excluir').href = 'excluir.html?id=' + encodeURIComponent(aluno.id);
+      return linha;
+    }
+
+    function desenharPaginacao(totalPaginas) {
+      const nav = $('paginacao');
+      nav.innerHTML = '';
+      if (totalPaginas <= 1) return;
+
+      const botao = (texto, alvo, desativado, atual) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = texto;
+        b.disabled = desativado;
+        if (atual) { b.classList.add('ativo'); b.setAttribute('aria-current', 'page'); }
+        b.addEventListener('click', () => { pagina = alvo; desenhar(); });
+        return b;
+      };
+
+      nav.appendChild(botao('Anterior', pagina - 1, pagina === 1));
+      for (let p = 1; p <= totalPaginas; p++) nav.appendChild(botao(p, p, false, p === pagina));
+      nav.appendChild(botao('Próximo', pagina + 1, pagina === totalPaginas));
+    }
+
+    function desenhar() {
+      const lista = listaFiltrada();
+      const totalPaginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+      pagina = Math.min(pagina, totalPaginas);
+
+      const inicio = (pagina - 1) * POR_PAGINA;
+      const fatia = lista.slice(inicio, inicio + POR_PAGINA);   // só os 8 da página atual
+
+      if (!fatia.length) {
+        mensagemTabela('Nenhum aluno encontrado.');
+      } else {
+        corpo.innerHTML = '';
+        fatia.forEach(a => corpo.appendChild(criarLinha(a)));
+      }
+
+      $('info').textContent = lista.length
+        ? `Mostrando ${inicio + 1} a ${inicio + fatia.length} de ${lista.length} alunos`
+        : '';
+      desenharPaginacao(totalPaginas);
+    }
+
+    // ----- eventos -----
+    $('busca').addEventListener('input', e => {
+      busca = semAcento(e.target.value.trim());
+      pagina = 1;
+      desenhar();
+    });
+
+    $('filtros').addEventListener('click', e => {
+      const botao = e.target.closest('button[data-filtro]');
+      if (!botao) return;
+      filtro = botao.dataset.filtro;
+      pagina = 1;
+      document.querySelectorAll('#filtros button').forEach(b => b.classList.toggle('ativo', b === botao));
+      desenhar();
+    });
+
+    // ----- início -----
+    async function iniciar() {
+      mensagemTabela('Carregando alunos...');
+      try {
+        todos = await buscarAlunos();
+        desenhar();
+      } catch {
+        mensagemTabela('Não foi possível carregar os alunos. Tente novamente.');
+      }
+    }
+    iniciar();
+  </script>
+</body>
+
+</html>
