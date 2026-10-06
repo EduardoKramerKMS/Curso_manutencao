@@ -389,6 +389,110 @@ app.MapDelete("/api/usuarios/{id:int}", async (int id, ClaimsPrincipal quem) =>
         ? Results.NotFound("Usuário não encontrado.")
         : Results.Conflict("Não é possível excluir o último administrador.");
 });
+// ===== PRESENÇA =====
+app.MapGet("/api/cursos", async () =>
+{
+    var lista = new List<CursoDto>();
+    await using var con = await Abrir();
+    await using var cmd = new SqlCommand("SELECT Id, Nome FROM Curso ORDER BY Nome", con);
+    await using var rd = await cmd.ExecuteReaderAsync();
+    while (await rd.ReadAsync()) lista.Add(new CursoDto(rd.GetInt32(0), rd.GetString(1)));
+    return Results.Ok(lista);
+});
+
+app.MapGet("/api/cursos/{id:int}/aulas", async (int id) =>
+{
+    var lista = new List<AulaDto>();
+    await using var con = await Abrir();
+    await using var cmd = new SqlCommand(
+        "SELECT Id, DataAula, Tema FROM Aula WHERE CursoId = @c ORDER BY DataAula DESC", con);
+    cmd.Parameters.AddWithValue("@c", id);
+    await using var rd = await cmd.ExecuteReaderAsync();
+    while (await rd.ReadAsync())
+        lista.Add(new AulaDto(rd.GetInt32(0),
+            DateOnly.FromDateTime(rd.GetDateTime(1)).ToString("yyyy-MM-dd"),
+            rd.IsDBNull(2) ? "" : rd.GetString(2)));
+    return Results.Ok(lista);
+});
+
+app.MapPost("/api/cursos/{id:int}/aulas", async (int id, AulaEntrada a) =>
+{
+    if (!DateOnly.TryParse(a.Data, out var data)) return Results.BadRequest("Informe a data da aula.");
+    if ((a.Tema ?? "").Trim().Length > 100) return Results.BadRequest("O tema pode ter no máximo 100 caracteres.");
+
+    try
+    {
+        await using var con = await Abrir();
+        await using var cmd = new SqlCommand(
+            "INSERT INTO Aula (CursoId, DataAula, Tema) OUTPUT INSERTED.Id VALUES (@c, @d, @t)", con);
+        cmd.Parameters.AddWithValue("@c", id);
+        cmd.Parameters.AddWithValue("@d", data.ToDateTime(TimeOnly.MinValue));
+        cmd.Parameters.AddWithValue("@t", string.IsNullOrWhiteSpace(a.Tema) ? (object)DBNull.Value : a.Tema.Trim());
+        int novoId = (int)(await cmd.ExecuteScalarAsync())!;
+        return Results.Created($"/api/aulas/{novoId}", new { id = novoId });
+    }
+    catch (SqlException ex) when (ex.Number == 547)   // curso não existe
+    {
+        return Results.NotFound("Curso não encontrado.");
+    }
+});
+
+// alunos matriculados no curso da aula, com a presença já registrada (se houver)
+app.MapGet("/api/aulas/{id:int}/presencas", async (int id) =>
+{
+    var lista = new List<PresencaDto>();
+    await using var con = await Abrir();
+    await using var cmd = new SqlCommand(@"
+        SELECT m.Id, al.Nome, p.Presente
+        FROM Aula a
+        JOIN Matricula m ON m.CursoId = a.CursoId
+        JOIN Aluno al ON al.Id = m.AlunoId
+        LEFT JOIN Presenca p ON p.AulaId = a.Id AND p.MatriculaId = m.Id
+        WHERE a.Id = @id
+        ORDER BY al.Nome", con);
+    cmd.Parameters.AddWithValue("@id", id);
+    await using var rd = await cmd.ExecuteReaderAsync();
+    while (await rd.ReadAsync())
+        lista.Add(new PresencaDto(rd.GetInt32(0), rd.GetString(1),
+            rd.IsDBNull(2) ? null : rd.GetBoolean(2)));
+    return Results.Ok(lista);
+});
+
+// salva a lista inteira de uma vez (tudo ou nada)
+app.MapPut("/api/aulas/{id:int}/presencas", async (int id, List<PresencaEntrada> itens) =>
+{
+    if (itens.Count == 0) return Results.BadRequest("Nenhum aluno para registrar.");
+
+    await using var con = await Abrir();
+    await using var tx = con.BeginTransaction();
+    try
+    {
+        foreach (var i in itens)
+        {
+            await using var cmd = new SqlCommand(@"
+                IF EXISTS (SELECT 1 FROM Aula a JOIN Matricula m ON m.CursoId = a.CursoId
+                           WHERE a.Id = @aula AND m.Id = @mat)
+                BEGIN
+                    UPDATE Presenca SET Presente = @p WHERE AulaId = @aula AND MatriculaId = @mat;
+                    IF @@ROWCOUNT = 0
+                        INSERT INTO Presenca (AulaId, MatriculaId, Presente) VALUES (@aula, @mat, @p);
+                END
+                ELSE
+                    THROW 50002, 'Matrícula fora do curso da aula.', 1;", con, tx);
+            cmd.Parameters.AddWithValue("@aula", id);
+            cmd.Parameters.AddWithValue("@mat", i.MatriculaId);
+            cmd.Parameters.AddWithValue("@p", i.Presente);
+            await cmd.ExecuteNonQueryAsync();
+        }
+        await tx.CommitAsync();
+        return Results.NoContent();
+    }
+    catch (SqlException ex) when (ex.Number == 50002)
+    {
+        await tx.RollbackAsync();
+        return Results.BadRequest("Há aluno que não pertence ao curso desta aula.");
+    }
+});
 
 app.Run();
  
@@ -402,4 +506,9 @@ record InicioDto(ResumoDto Resumo, List<AlunoRecente> Recentes);
 record LoginEntrada(string Email, string Senha);
 record UsuarioEntrada(string Nome, string Email, string Senha, string Perfil);
 record UsuarioDto(int Id, string Nome, string Email, string Perfil, bool Ativo, DateTime CriadoEm);
+record CursoDto(int Id, string Nome);
+record AulaDto(int Id, string DataAula, string Tema);
+record AulaEntrada(string Data, string? Tema);
+record PresencaDto(int MatriculaId, string Aluno, bool? Presente);
+record PresencaEntrada(int MatriculaId, bool Presente);
  

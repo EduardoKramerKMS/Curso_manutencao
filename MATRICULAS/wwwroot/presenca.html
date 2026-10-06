@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presença</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/consultar.css">
+  <script src="/js/auth.js"></script>
+  <style>
+    .filtros-presenca { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+    .filtros-presenca .campo { flex: 1; min-width: 240px; }
+    .nova-aula { display: none; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+    .nova-aula.mostrar { display: flex; }
+    .nova-aula .campo { flex: 1; min-width: 180px; }
+    td.marca-presenca { text-align: center; width: 140px; }
+    td.marca-presenca input { width: 20px; height: 20px; accent-color: #2563eb; cursor: pointer; }
+  </style>
+</head>
+
+<body>
+  <aside>
+    <div class="marca">
+      <div class="logo"><svg viewBox="0 0 24 24">
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg></div>
+      <div><b>Curso de Manutenção</b><small>ADMIN PAINEL</small></div>
+    </div>
+    <nav>
+      <a href="inicio.html"><svg viewBox="0 0 24 24">
+          <path d="M3 10.5 12 3l9 7.5V21H3z" />
+        </svg>Início</a>
+      <div class="menu-alunos">
+        <a href="consultar.html"><svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="4" />
+            <path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6" />
+          </svg>Alunos</a>
+        <div class="submenu">
+          <a href="adicionar.html">Adicionar Aluno</a>
+          <a href="editar.html">Editar Aluno</a>
+          <a href="excluir.html">Excluir Aluno</a>
+          <a href="consultar.html">Consultar Aluno</a>
+        </div>
+      </div>
+      <!-- os links "Presença" e "Usuários" são incluídos pelo auth.js -->
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header>
+      <div>
+        <h1>Presença</h1>
+        <p>Registrar quem veio em cada aula.</p>
+      </div>
+      <div class="usuario">
+        <span class="selo">Administrador</span>
+        <button type="button" id="sair" class="btn cancelar">Sair</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+      <section class="cartao">
+        <div class="filtros-presenca">
+          <div class="campo">
+            <label for="curso">Curso</label>
+            <select id="curso"></select>
+          </div>
+          <div class="campo">
+            <label for="aula">Aula</label>
+            <select id="aula"></select>
+          </div>
+          <button type="button" class="btn cancelar" id="btn-nova">+ Nova aula</button>
+        </div>
+
+        <div class="nova-aula" id="nova-aula">
+          <div class="campo">
+            <label for="data">Data da aula</label>
+            <input type="date" id="data">
+          </div>
+          <div class="campo">
+            <label for="tema">Tema (opcional)</label>
+            <input type="text" id="tema" maxlength="100" autocomplete="off">
+          </div>
+          <button type="button" class="btn salvar" id="criar-aula">Criar aula</button>
+        </div>
+      </section>
+
+      <section class="cartao lista" style="margin-top:24px">
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Aluno</th>
+                <th class="marca-presenca">Presente</th>
+              </tr>
+            </thead>
+            <tbody id="tabela"></tbody>
+          </table>
+        </div>
+        <div class="rodape" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <span id="info"></span>
+          <span>
+            <button type="button" class="btn cancelar" id="todos">Marcar todos presentes</button>
+            <button type="button" class="btn salvar" id="salvar" disabled>Salvar presença</button>
+          </span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const corpo = $('tabela'), aviso = $('aviso');
+    let temporizador;
+
+    const fmt = d => d.split('-').reverse().join('/');
+
+    function mostrarAviso(texto, tipo) {
+      clearTimeout(temporizador);
+      aviso.className = 'aviso mostrar ' + tipo;
+      aviso.textContent = texto;
+      temporizador = setTimeout(() => aviso.classList.remove('mostrar'), 5000);
+    }
+
+    // devolve { ok, dados }: em caso de erro, dados é o texto enviado pelo servidor
+    async function api(url, opcoes) {
+      const resp = await fetch(url, opcoes);
+      let dados = null;
+      try { dados = await resp.json(); } catch { }
+      return { ok: resp.ok, dados };
+    }
+    const enviar = (url, metodo, corpoJson) => api(url, {
+      method: metodo,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(corpoJson)
+    });
+    const erroDe = r => (typeof r.dados === 'string' ? r.dados : 'Erro no servidor.');
+
+    function opcoes(select, lista, texto, vazio) {
+      select.innerHTML = '';
+      if (!lista.length) {
+        select.add(new Option(vazio, ''));
+        return;
+      }
+      lista.forEach(i => select.add(new Option(texto(i), i.id)));
+    }
+
+    function mensagem(texto) {
+      corpo.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = 'vazio';
+      const td = document.createElement('td');
+      td.colSpan = 2;
+      td.textContent = texto;
+      tr.appendChild(td);
+      corpo.appendChild(tr);
+      $('info').textContent = '';
+      $('salvar').disabled = true;
+    }
+
+    function resumo() {
+      const caixas = [...corpo.querySelectorAll('input[type=checkbox]')];
+      const presentes = caixas.filter(c => c.checked).length;
+      $('info').textContent = presentes + ' presentes de ' + caixas.length + ' alunos';
+    }
+
+    async function carregarCursos() {
+      const r = await api('/api/cursos');
+      opcoes($('curso'), r.ok ? r.dados : [], c => c.nome, 'Nenhum curso cadastrado');
+      await carregarAulas();
+    }
+
+    async function carregarAulas(selecionar) {
+      const curso = $('curso').value;
+      if (!curso) { opcoes($('aula'), [], null, 'Sem aulas'); return mensagem('Cadastre um curso para começar.'); }
+      const r = await api('/api/cursos/' + curso + '/aulas');
+      opcoes($('aula'), r.ok ? r.dados : [], a => fmt(a.dataAula) + (a.tema ? ' — ' + a.tema : ''), 'Nenhuma aula criada');
+      if (selecionar) $('aula').value = selecionar;
+      await carregarAlunos();
+    }
+
+    async function carregarAlunos() {
+      const aula = $('aula').value;
+      if (!aula) return mensagem('Crie uma aula para registrar a presença.');
+      const r = await api('/api/aulas/' + aula + '/presencas');
+      if (!r.ok) return mensagem('Não foi possível carregar os alunos.');
+      if (!r.dados.length) return mensagem('Nenhum aluno matriculado neste curso.');
+
+      corpo.innerHTML = '';
+      r.dados.forEach(p => {
+        const tr = document.createElement('tr');
+        const nome = document.createElement('td');
+        nome.className = 'nome';
+        nome.textContent = p.aluno;
+
+        const td = document.createElement('td');
+        td.className = 'marca-presenca';
+        const caixa = document.createElement('input');
+        caixa.type = 'checkbox';
+        caixa.checked = p.presente !== false;   // sem registro ainda: começa marcado
+        caixa.dataset.matricula = p.matriculaId;
+        caixa.setAttribute('aria-label', 'Presente: ' + p.aluno);
+        td.appendChild(caixa);
+
+        tr.append(nome, td);
+        corpo.appendChild(tr);
+      });
+      $('salvar').disabled = false;
+      resumo();
+    }
+
+    /* ===== eventos ===== */
+    $('curso').addEventListener('change', () => carregarAulas());
+    $('aula').addEventListener('change', carregarAlunos);
+    corpo.addEventListener('change', resumo);
+
+    $('todos').addEventListener('click', () => {
+      corpo.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = true);
+      resumo();
+    });
+
+    $('btn-nova').addEventListener('click', () => $('nova-aula').classList.toggle('mostrar'));
+
+    $('criar-aula').addEventListener('click', async () => {
+      const curso = $('curso').value;
+      if (!curso) return mostrarAviso('Escolha um curso.', 'falha');
+      if (!$('data').value) return mostrarAviso('Informe a data da aula.', 'falha');
+      const r = await enviar('/api/cursos/' + curso + '/aulas', 'POST', { data: $('data').value, tema: $('tema').value });
+      if (!r.ok) return mostrarAviso(erroDe(r), 'falha');
+      $('data').value = $('tema').value = '';
+      $('nova-aula').classList.remove('mostrar');
+      mostrarAviso('Aula criada!', 'ok');
+      await carregarAulas(String(r.dados.id));
+    });
+
+    $('salvar').addEventListener('click', async () => {
+      const itens = [...corpo.querySelectorAll('input[type=checkbox]')]
+        .map(c => ({ matriculaId: Number(c.dataset.matricula), presente: c.checked }));
+      $('salvar').disabled = true;
+      $('salvar').textContent = 'Salvando...';
+      try {
+        const r = await enviar('/api/aulas/' + $('aula').value + '/presencas', 'PUT', itens);
+        mostrarAviso(r.ok ? 'Presença salva com sucesso!' : erroDe(r), r.ok ? 'ok' : 'falha');
+      } catch {
+        mostrarAviso('Sem conexão com o servidor. Tente novamente.', 'falha');
+      } finally {
+        $('salvar').disabled = false;
+        $('salvar').textContent = 'Salvar presença';
+      }
+    });
+
+    carregarCursos();
+  </script>
+</body>
+
+</html>

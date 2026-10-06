@@ -75,5 +75,6 @@ C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\ob
 C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\lim6larh1n-{0}-uo0bdnwol7-uo0bdnwol7.gz
 C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\ff8v9ocej9-{0}-6knzqtf15i-6knzqtf15i.gz
 C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\sdst4na0up-{0}-csexlmcbvu-csexlmcbvu.gz
-C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\yoc719jjih-{0}-yvvbgg986r-yvvbgg986r.gz
 C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\zjdqz10ch6-{0}-olbs4ly2kw-olbs4ly2kw.gz
+C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\5wdmepnnzc-{0}-f8sgmtnrj1-f8sgmtnrj1.gz
+C:\Users\acuir\OneDrive\Imagens\Documentos\GitHub\Curso_manutencao\MATRICULAS\obj\Debug\net10.0\compressed\yoc719jjih-{0}-gmh0vvk1qx-gmh0vvk1qx.gz
